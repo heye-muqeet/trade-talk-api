@@ -7,7 +7,7 @@ export class MailerService {
     service: 'gmail',
     auth: {
       user: 'abdulmuqeet.qfn@gmail.com',
-      pass: 'zdyporrozoepmvux',
+      pass: 'pwwvdfijgnteiveg',
     },
   });
 
