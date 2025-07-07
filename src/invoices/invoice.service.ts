@@ -95,4 +95,41 @@ export class InvoiceService {
             phoneNumber: invoice.phoneNumber,
         }));
     }
+
+    async getquotesForUser(UserId: number):Promise<Invoice[] | null>{
+
+        const quotes = await this.invoiceRepo.find({
+            where:{ user: { id: UserId } , type: 'quote'},
+        });
+
+        return quotes;
+    }
+
+    async getInvoicesForUser(userId: number): Promise<{ id: number; pdfUrl: string; createdAt: Date}[]> {
+        const invoices = await this.invoiceRepo.find({
+            where: { user: { id: userId } }, // Assuming 'user' is the relationship field
+            select: ['id', 'pdfUrl', 'createdAt'], // Select only the necessary fields
+        });
+        // Ensure pdfUrl is just the filename if that's what's stored and expected
+        return invoices.map(invoice => ({
+            id: invoice.id,
+            pdfUrl: invoice.pdfUrl, // Or invoice.pdfUrl.split('/').pop() if you store full paths
+            createdAt: invoice.createdAt,
+            // status: invoice.status,
+        }));
+    }
+
+    // NEW METHOD: Update invoice status
+    async updateInvoiceStatus(invoiceId: number, userId: number, status: string): Promise<Invoice> {
+        const invoice = await this.invoiceRepo.findOne({
+            where: { id: invoiceId, user: { id: userId } }, // Ensure invoice belongs to the user
+        });
+
+        if (!invoice) {
+            throw new Error('Invoice not found or does not belong to the user.');
+        }
+
+        // invoice.status = status; // Update the status
+        return this.invoiceRepo.save(invoice); // Save the updated invoice
+    }
 }

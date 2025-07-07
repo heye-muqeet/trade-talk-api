@@ -21,7 +21,7 @@ export class UsersService {
         if (existingUser) {
             throw new BadRequestException('Email already exists');
         }
-
+        
         const hashedPassword = await bcrypt.hash(password, 10);
         const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -99,5 +99,33 @@ export class UsersService {
         }
 
         await this.sendVerificationCode(email);
+    }
+
+        async resetPassword(email: string, verificationCode: string, newPasswordPlain: string): Promise<void> {
+        const user = await this.usersRepository.findOne({ where: { email } });
+
+        if (!user) {
+            throw new BadRequestException('User not found.');
+        }
+
+        // Validate the verification code
+        if (!user.verificationCode || user.verificationCode !== verificationCode) {
+            throw new BadRequestException('Invalid verification code.');
+        }
+
+        // Check if the verification code has expired
+        if (!user.verificationCodeExpiresAt || user.verificationCodeExpiresAt < new Date()) {
+            throw new BadRequestException('Verification code expired.');
+        }
+
+        // Hash the new password
+        const hashedNewPassword = await bcrypt.hash(newPasswordPlain, 10);
+
+        // Update the user's password and clear verification code fields
+        user.password = hashedNewPassword;
+        user.verificationCode = null; // Clear the used code
+        user.verificationCodeExpiresAt = null; // Clear the expiration time
+
+        await this.usersRepository.save(user);
     }
 }

@@ -12,6 +12,7 @@ export class MailerService {
   });
 
   async sendVerificationEmail(email: string, code: string) {
+    console.log(code);
     await this.transporter.sendMail({
       from: '"TradeTalk" <abdulmuqeet.qfn@gmail.com>',
       to: email,

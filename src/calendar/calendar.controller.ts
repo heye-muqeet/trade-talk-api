@@ -81,4 +81,23 @@ export class CalendarController {
 
         return this.calendarService.updateEvent(accessToken, eventId, body);
     }
+
+    @Get('all-events')
+    async getAllEvents(@Headers('authorization') authHeader: string) {
+        if (!authHeader) {
+            return { error: "Authorization header is missing" };
+        }
+
+        const accessToken = authHeader.replace("Bearer ", "").trim();
+        if (!accessToken) {
+            return { error: "Invalid token format" };
+        }
+
+        try {
+            return this.calendarService.getAllEvents(accessToken);
+        } catch (error) {
+            console.error("Error in controller while fetching all events:", error.message);
+            return { error: "Failed to fetch all events: " + error.message };
+        }
+    }
 }

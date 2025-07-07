@@ -117,8 +117,28 @@ export class CalendarService {
         }
     }
 
+    async getAllEvents(accessToken: string) {
+        try {
+            this.oauth2Client.setCredentials({ access_token: accessToken });
+            const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
+
+            const response = await calendar.events.list({
+                calendarId: 'primary',
+                singleEvents: true, // Expands recurring events into individual instances
+                orderBy: 'startTime', // Sort by start time
+            });
+
+            console.log("All events fetched:", response.data.items);
+            return response.data.items || []; // Return the list of events, or empty array if none
+        } catch (error) {
+            console.error("Error fetching all events:", error.message);
+            throw new Error(error.message);
+        }
+    }
+
     async getEventsByTime(accessToken: string, startTime: Date) {
         try {
+            console.log(accessToken);
             this.oauth2Client.setCredentials({ access_token: accessToken });
             const calendar = google.calendar({ version: 'v3', auth: this.oauth2Client });
 
@@ -128,6 +148,7 @@ export class CalendarService {
                 singleEvents: true, // Expands recurring events into individual instances
                 orderBy: 'startTime', // Sort by start time
             });
+
 
             console.log("Events fetched by time:", response.data.items);
             return response.data.items || []; // Return the list of events, or empty array if none

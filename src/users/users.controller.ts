@@ -35,4 +35,20 @@ export class UsersController {
         };
     }
 
+    @Post('send-verification-code') // Matches API.ENDPOINTS.FORGOT_PASSWORD_REQUEST_CODE
+  async sendCode(@Body() body: {email: string}) {
+    await this.usersService.sendVerificationCode(body.email);
+    return { message: 'Verification code sent.' };
+  }
+
+    @Post('reset-password') // Matches API.ENDPOINTS.RESET_PASSWORD
+  async resetPassword(@Body() body: {email: string; verificationCode: string; newPassword: string}) {
+    await this.usersService.resetPassword(
+      body.email,
+      body.verificationCode,
+      body.newPassword,
+    );
+    return { message: 'Password has been reset successfully.' };
+  }
+
 }
